@@ -70,4 +70,4 @@ def apply_transform_to_point(mat, point):
     """Apply the perspective transformation matrix to the given 2D vector."""
     in_vect = np.array([point[0], point[1], 1]).T
     out_vect = np.dot(mat, in_vect)
-    return [int(out_vect[0]/out_vect[2]), int(out_vect[1]/out_vect[2])]
+    return [out_vect[0]/out_vect[2], out_vect[1]/out_vect[2]]
