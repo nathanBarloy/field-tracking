@@ -15,6 +15,7 @@ if not video.isOpened():
 
 # callback functions for mouse click
 def left_click(event,x,y,flags,param):
+    global paused
     if event == cv2.EVENT_LBUTTONDBLCLK:
         cv2.circle(img,(x,y),10,(0,0,255),-1)
 
@@ -24,13 +25,36 @@ def left_click(event,x,y,flags,param):
 
 
 paused = False
+previous_frames = [] # could be faster with a linked list
+next_frames = []
+max_num_frames = 64
+
+def read_frame():
+    if len(next_frames) == 0:
+        ret, frame = video.read()
+    else:
+        ret, frame = True, next_frames.pop()
+    if not ret:
+        return False
+    
+    if len(previous_frames) >= max_num_frames:
+        previous_frames.pop(0)
+    previous_frames.append(frame)
+    cv2.imshow("Video", frame)
+    return True
+
+def rewind_frame():
+    if len(previous_frames) > 1:
+        next_frames.append(previous_frames.pop())
+        cv2.imshow("Video", previous_frames[-1])
+    
+    
+
+
 while video.isOpened():
     if not paused:
-        ret, frame = video.read()
-        if not ret:
+        if not read_frame():
             break
-        
-        cv2.imshow("Video", frame)
 
     key = cv2.waitKey(elapsed_time_int)
     if key == ord('q'):
@@ -43,6 +67,13 @@ while video.isOpened():
     if key == ord('z'):
         elapsed_time *=0.75
         elapsed_time_int = int(elapsed_time)
+    if key == ord('p'):
+        if paused:
+            if not read_frame():
+                break
+    if key == ord('o'):
+        if paused:
+            rewind_frame()
 
 
 video.release()
