@@ -15,7 +15,7 @@ if not video.isOpened():
 
 # test calibrate
 ret, frame = video.read()
-calibrate(frame)
+M = calibrate(frame, (450, 900))
 
 video.release()
 cv2.destroyAllWindows()
